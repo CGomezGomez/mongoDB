@@ -30,8 +30,8 @@ const EditUser = ({ setUsers, userToEdit, setUserToEdit, setIsEditing }) => {
 
 const handleSubmit = async (event, userToEdit, setUsers, setIsEditing) => {
 	event.preventDefault();
-	const { userId } = userToEdit;
-	const response = await fetch(`http://localhost:3000/api/users/${userId}`, {
+	const { _id } = userToEdit;
+	const response = await fetch(`http://localhost:3000/api/users/${_id}`, {
 		method: 'PATCH',
 		body: JSON.stringify(userToEdit),
 		headers: {

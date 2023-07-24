@@ -37,7 +37,7 @@ controller.userById = (req, res) => {
 // Crear un usuario nuevo
 controller.createUser = async (req, res) => {
   
-    const users = await UserModel.find();
+    let users = await UserModel.find();
 
     const userExist = users.some(user => user.email === req.body.email);
 
@@ -51,56 +51,47 @@ controller.createUser = async (req, res) => {
     });
 
     await newUser.save()
+
+    users = await UserModel.find();
+
+    res.send(users)
 };
 
-controller.updateUser = (req, res) => {
-  fs.readFile(usersFile, (err, data) => {
-    if (err) return res.send({ error: 'Error al leer el archivo de usuarios' });
+controller.updateUser = async (req, res) => {
 
-    const users = JSON.parse(data);
+  let user = await UserModel.findById(req.params.id);
 
-    const user = users.find(user => user.userId === req.params.id);
+  if(!user){
+   return res.status(409).send({error: 'User not exist'});
+  }
 
-    if (!user) res.status(404).send({ error: 'Usuario no encontrado' });
+  const {name , email} = req.body;
 
-    user.name = req.body.name;
-    user.email = req.body.email;
+  user.name = name;
+  user.email = email;
 
-    fs.writeFile(usersFile, JSON.stringify(users), err => {
-      if (err) {
-        return res.status(500).send({ error: 'Error al guardar el archivo de usuarios' });
-      }
-      res.send(users);
-    });
-  });
+  await user.save()
+
+  const users = await UserModel.find()
+
+  res.send(users);
+
+    
 };
 
-controller.deleteUser = (req, res) => {
-  fs.readFile(usersFile, (err, data) => {
-    if (err) {
-      console.log(err);
+controller.deleteUser = async (req, res) => {
 
-      return res.send({ error: 'Error al leer el archivo de usuarios' });
-    }
+    let user = await UserModel.findById(req.params.id);
 
-    let users = JSON.parse(data);
+   if(!user){
+    return res.status(409).send({error: 'User not exist'});
+   }
 
-    const userIndex = users.findIndex(user => user.userId === req.params.id);
+   await user.deleteOne();
 
-    if (userIndex === -1) return res.status(404).send('Usuario no encontrado');
+   const users = await UserModel.find();
 
-    users.splice(userIndex, 1);
-
-    fs.writeFile(usersFile, JSON.stringify(users), err => {
-      if (err) {
-        console.log(err);
-
-        return res.status(500).send({ error: 'Error al guardar el archivo de usuarios' });
-      }
-
-      res.status(200).send(users);
-    });
-  });
+   res.send(users);
 };
 
 module.exports = controller;

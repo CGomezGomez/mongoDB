@@ -4,10 +4,10 @@ const Users = ({ users, setUsers, setIsEditing, setUserToEdit }) => {
 	return (
 		<div>
 			{users.map(user => (
-				<div key={user.userId}>
+				<div key={user._id}>
 					<h2>{user.name}</h2>
 					<p>{user.email}</p>
-					<button onClick={() => deleteUser(user.userId, setUsers)}>
+					<button onClick={() => deleteUser(user._id, setUsers)}>
 						Borrar
 					</button>
 					<button
